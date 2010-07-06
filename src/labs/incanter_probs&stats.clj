@@ -66,7 +66,7 @@
     [:li "One of the most debated problems in probability is the " [:a {:href "http://en.wikipedia.org/wiki/Monty_Hall_problem"} "Monty Hall problem"] "."
          " Using a " [:a {:href "http://en.wikipedia.org/wiki/Monte_carlo_simulation"} "Monte Carlo simulation"] ", we can use Incanter samples to simulate how the problem would play out over many iterations."
          " Load the required namespaces:"
-         (code (use '(incanter core stats charts)))]
+         (code (use '[incanter core stats charts]))]
     [:li "Next, we need to create the simulation."
          " Note that we sample from [1, 2, 3] to represent the 3 doors, and n represents the number of trials to run."
          (code (def n 10000)
