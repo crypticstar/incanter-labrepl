@@ -35,7 +35,7 @@
    [:ol
     [:li "The trace of a matrix is found by adding together all of the numbers on the diagonal from (0,0) to (n,n)."
          " Incanter provides the " (c diag) " function to access those elements:"
-         (code (diag M))]
+         (code (diag A))]
     [:li "To find the trace of the matrix, add all the results from " (c diag) " together:"
          (code (defn tr [m] (apply + (diag m))))]
     [:li "Applying " (c tr) " to " (c A) " will result in 15."
@@ -56,13 +56,13 @@
          " Minors and their coefficients taken together are called " [:a {:href "http://en.wikipedia.org/wiki/Cofactor_%28linear_algebra%29"} "cofactors"] "." 
          " Because we only need a cofactor for every column along the top row, we can map each column number to " (c getMinor) " and leave the row as 0:" 
          (code "(defn getCofactors [m]
-  (map #(cons (* (Math/pow -1 %) (sel m 0 %)) (getMinor m 0 %))
+    (map #(cons (* (Math/pow -1 %) (sel m 0 %)) (getMinor m 0 %))
         (range (sqrt (length m)))))")]
     [:li "We now need to write the determinant function that uses " (c getCofactors) "."
          " If our matrix is already 2x2, we simply need to calculate " (c ad-bc) ":"
          (code "(defn determinant [m]
   (if ((= 2 (first (dim m)) (second (dim m)))
-    (- (* (sel m 0 0) (sel m 1 1)) (* (sel m 0 1) (sel m 1 0)))))")]
+    (- (* (sel m 0 0) (sel m 1 1)) (* (sel m 0 1) (sel m 1 0))))))")]
     [:li "If the matrix is larger than 2x2, all the cofactors will need to be found and recured on until they are 2x2." 
          " To recur on each cofactor, use map, multiplying together coefficients as you go:"
          (code "(defn determinant [m]
