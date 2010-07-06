@@ -5,7 +5,9 @@
   []
   [:intro :names-and-places :its-all-data :looping :project-euler
    :mini-browser :unified-update-model :zero-sum  :cellular-automata
-   :defstrict :rock-paper-scissors])
+   :defstrict :rock-paper-scissors :incanter-intro :incanter-datasets
+   :incanter-charts :incanter-matrices :incanter-probs&stats
+   :incanter-processing])
 
 (defn lab-url
   [lab-name]
