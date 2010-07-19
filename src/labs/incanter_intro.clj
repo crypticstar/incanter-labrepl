@@ -25,13 +25,27 @@
   []
   [[:h3 "Documentation"]
    [:ol
-    [:li "The API for all documented Incanter functions and variables can be found " [:a {:href "http://liebke.github.com/incanter/api-index.html"} "here"] "."]
-    [:li "Like in the Clojure REPL, all of the Clojure documentation features are available for Incanter."
-         " Load the " (c datasets) " namespace and try to find the sample data sets that come with Incanter:"
-         (showme "(use 'incanter.datasets)
+    [:li "Click " [:a {:href "http://liebke.github.com/incanter/api-index.html"} "here"] " to find the documentation for Incanter."]
+    [:li " Load the " (c datasets) " namespace and find the sample data sets that come with Incanter:"
+         (code "(use 'incanter.datasets)
 (find-doc \"sample data sets\")")
          "Many of these datasets come from R, and are provided for your use."]
-    [:li "A " [:a {:href "http://incanter.org/docs/incanter-cheat-sheet.pdf"} "cheat sheet"] " is available which provides a quick overview of Incanter."]]])
+    [:li "Look at this " [:a {:href "http://incanter.org/docs/incanter-cheat-sheet.pdf"} "cheat sheet"] " for a quick overview of Incanter."]]])
+
+(defn preview
+  []
+  [[:h3 "Preview"]
+   [:ol
+    [:li "Run the following code to see a preview of what Incanter can do:"
+         (code "(use '(incanter charts core datasets)) 
+(def data (get-dataset :airline-passengers))
+(view (line-chart (sel data :cols 2)
+                  (sel data :cols 1)
+                  :group-by (sel data :cols 0)
+                  :title \"Airline Travel in 1949-1960\"
+                  :legend true
+                  :y-label \"Passengers\"
+                  :x-label \"Month\"))")]]])
 
 (defn bonus
   []
@@ -45,4 +59,5 @@
    (overview)
    (namespaces)
    (documentation)
+   (preview)
    (bonus)))

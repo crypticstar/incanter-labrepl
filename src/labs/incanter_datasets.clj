@@ -4,7 +4,7 @@
 (defn overview
   []
   [[:h3 "Overview"]
-   [:p "In this lab, you will learn to create, manipulate and save datasets."
+   [:p "In this lab, you will learn to create and manipulate datasets."
        " In particular, we'll work with a set of data which categorizes people by hair color, eye color, and gender."
        " With it, we'll see which hair color/eye color combinations are the most prevalent, regardless of gender."]])
 
@@ -12,41 +12,55 @@
   []
   [[:h3 "Creating Datasets"]
    [:ol
-    [:li "The dataset functionality we'll initially be working with is contained in the " (c core) " namespace."
+    [:li "Import the " (c core) " namespace for dataset functionality."
      (code (use 'incanter.core))]
-    [:li "A dataset is defined as a mapping between a set of column names and values.
-          These can be defined as two sets of sequences:"
+    [:li "Make a dataset using two sets of sequences:"
 		     (code "(dataset [\"a\" \"b\" \"c\"]
          [[1 2 3]
           [4 5 6]
           [7 8 9]])")
-     "This will return a map of type " (c dataset) "."]
-    [:li "The " (c to-dataset) " function will convert the input to type " (c dataset) "."
-         " Here, " (c to-dataset) " takes a sequence of hash maps, where the keys in each hash map correspond to a column:"
+     "A dataset is defined as a mapping between a set of column names and values."
+     " This will return a map of type " (c dataset) "."]
+    [:li "Now, use " (c to-dataset) " by giving it a sequence of hash maps, where the keys in each hash map correspond to a column:"
           (code "(to-dataset [{:a 1 :b 2 :c 3}
              {:a 4 :b 5 :c 6}
-             {:a 7 :b 8 :c 9}])")]
-    [:li "Datasets can also be made by conjugating together sequences that represent columns or rows:"
+             {:a 7 :b 8 :c 9}])")
+          "What makes " (c to-dataset) " different from " (c dataset) " is that " (c dataset) " takes 2 arguments: one where the column names are specified, followed by a list of rows."
+          " " (c to-dataset) " arguments are already other types of sequences (such as maps) that need to be converted into a dataset of column names and rows."
+          " How this conversion happens depends on the type of sequence."
+          " For example, in maps, the keys become column names, and the values become part of a row under that column."
+          " Try out some of the following to see the differences:"
+          (code "(dataset (range 10))
+(to-dataset (range 10))
+
+(dataset [[1 2] [3 4] [5 6]])
+(to-dataset [[1 2] [3 4] [5 6]])
+
+(dataset [{:a 1 :b 2} {:a 1 :b 2}])
+(to-dataset [{:a 1 :b 2} {:a 1 :b 2}])")]
+    [:li "Conjugate together sequences that represent columns or rows to form new datasets:"
           (code "(conj-cols [1 4 7]
            [2 5 8]
            [3 6 9])")
           (code "(conj-rows [1 2 3]
            [4 5 6]
            [7 8 9])")]
-    [:li "Datasets external to Incanter may also be loaded in."
-         " As we saw in the previous labrepl, the statistical computing program R provides several sample datasets with it."
-         " Incanter provides a number of these datasets in the " (c datasets) " namespace:"
-         (code (use 'incanter.datasets)(def data (get-dataset :hair-eye-color)))]
-    [:li "You can view a dataset at any time in an easy-to-read GUI format by using the " (c view) " function:"
+    [:li "Load the following dataset:"
+         (code (use 'incanter.datasets)(def data (get-dataset :hair-eye-color)))
+         "As we saw in the previous labrepl, the statistical computing program R provides several sample datasets with it."
+         " Incanter provides a number of these datasets (such as the one we just loaded) in the " (c datasets) " namespace."]
+    [:li "Use " (c view) " to read the dataset in a GUI table:"
          (code (view data))]]])
 
 (defn rolling_up_sorting
   []
   [[:h3 "Rolling Up & Sorting"]
    [:ol
-    [:li "The " (c $rollup) " function allows for data to be summarized according to some function over some columns."
-         " The following will sum together tuples based on hair and eye colors:"
-         (code (def data-summary ($rollup :sum :count [:hair :eye] data)))]
+    [:li "The following will show how many samples (of either gender) have a specific hair/eye color combination:"
+         (code (def data-summary ($rollup :sum :count [:hair :eye] data)))
+         "The " (c $rollup) " function allows for data to be summarized according to some function over some columns."
+         " We can use " (c (doc $rollup)) " to find other ways to summarize data."
+         " The " (c $) " syntax comes from R's operator for accessing columns from a data frame and is used for functions that operate on datasets and can be used with the " (c with-data) " macro."]
     [:li "To sort the resulting data by " (c :count) ", we can use the " (c $order) " function:"
          (code ($order :count :desc data-summary))]]])
 
@@ -66,14 +80,18 @@
   []
   [[:h3 "Selection"]
     [:ol
-     [:li "Datasets - like other Clojure data structures - are seq-able and can use seq-able functions."
-          (code (first data-summary))]
-     [:li "Datasets also have functions that are unique to their type, such as " (c sel) " to make it easier to access a specific element."
-          " We can use these on any dataset we have, like the one stored in " (c data-summary) " from the previous section, specifying the " (c :rows) " and " (c :cols) ":"
-          (code (sel data-summary :rows 0))]
+     [:li "You can access datasets as maps:"
+          (code (:rows data-summary))
+          "The datasets can be accessed using all the Clojure functions you would usually use with maps."]
+     [:li "The following will access the first row of " (c data-summary) ":"
+          (code (sel data-summary :rows 0))
+          "Datasets also have functions that are unique to their type (such as " (c sel) ") to make it easier to access a specific element."]
      [:li "To find tuples in the dataset that meet a certain criteria, use " (c $where) ":"
           (code ($where {:count {:$gt 20}} data-summary))
-          " This will find all the rows where the value in the " (c :count) " column is greater than 20."]]])
+          " This will find all the rows where the value in the " (c :count) " column is greater than 20."
+          " Because " (c $where) " is an alias to " (c query-dataset) ", you can find information on specific options by looking at the " (c query-dataset) " doc."]
+     [:li "How would you select the hair and eye color combinations in " (c data-summary) " which are equal to 14?"
+          (showme "(sel ($where {:count {:$eq 14}} data-summary) :cols [:hair :eye])")]]])
 
 (defn dynamic_datasets
   []
@@ -93,11 +111,9 @@ table (data-table data)]
   []
   [[:h3 "Bonus"]
    [:ol
-    [:li "Look at the API online. What other types of input can " (c to-dataset) " take?"]
     [:li "When creating a dataset with " (c to-dataset) ", what is the behavior when a hash map is passed in, but the key values in the two maps aren't in the same order?"
          " What about when there aren't the same number of keys in each hash map?"
          " What about when there are different keys in each hash map?"]
-    [:li "What delimiters can be specified for the function " (c read-dataset) "?"]
     [:li "How would you find all the values of " (c :count) " in " (c data) " which are even using " (c $where) "?"]]])
 
 (defn instructions
