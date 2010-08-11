@@ -16,12 +16,9 @@
     [:li "One creative way to learn the basics of Processing is to build a " [:a {:href "http://www.rmx.cz/monsters/"} "Processing monster"] "."
          " You can click on some of the monsters on the site to see a demo of how they work, as well as the code behind them."    
          " Each monster must be black and white, and it must react in some way to mouse interaction."
-         " We will work on building up a small monster that meets these criteria."]
-    [:li "Processing commands are contained in the " (c processing) " module."
-         " All Processing programs must have a sketch item."
-         " This will define what commands Processing needs to execute."
-         " First, we'll need to create a window for our monster to live in."
-         " All of our code to define the monster and its interactions will be in a " (c let) " statement:"
+         " We will work on building up a small monster that meets these criteria."
+         " It will consist of an ellipse with lines for eyes that follows our cursor, gradually disappearing if we hold down the rick mouse button."]
+    [:li "First, create a window for the monster to live in:"
          (code "(use '[incanter core processing])
 
 (let [delay 20
@@ -33,16 +30,17 @@
                   (stroke-weight 8)
                   (framerate 30)
                   smooth)))]
-  (view sktch :size [400 400]))")]
-    [:li "The monster we're going to create will start out as an ellipse with eyes."
-         " We'll gradually evolve it and then add mouse interactions."
-         " The " (c draw) " function is responsible for changing the display, and is repeatedly called according to the frame rate of our sketch."
-         " Let's first add some variables in our " (c let) ":"
+  (view sktch :size [400 400]))")
+         "All of the code to define the monster and its interactions will be in a " (c let) " statement."
+         " Every Processing programs must have a sketch item."
+         " This will define what commands Processing needs to execute."
+         (c setup) " is always executed at the start of a Processing program, while others (like " (c draw) ") are called frequently during the lifespan of the program."]
+    [:li "Create variables in " (c let) " to keep track of the position of the monster and it's size:"
          (code "radius (ref 90.0)
 X (ref nil)
 Y (ref nil)")
-         "The " (c X) " and " (c Y) " values will keep track of the position of the monster."
-         " Then, we can add our " (c draw) " function to " (c sktch) ", just below our " (c setup) " function:"
+         ;"The " (c X) " and " (c Y) " values will keep track of the position of the monster."
+         " Then, add a " (c draw) " function to " (c sktch) ", just below the " (c setup) " function:"
          (code "(draw []
   (doto this
     (background 0)
@@ -50,18 +48,18 @@ Y (ref nil)")
     (ellipse @X @Y @radius @radius)
     (fill 0 0 0)
     (line (- @X 30) (- @Y 10) (- @X 20) (- @Y 10))
-    (line @X (- @Y 10) (+ @X 10) (- @Y 10))))")]
-    [:li "Next, we want to add mouse interaction, so that the monster follows our mouse."
-         " To do this, we want to be able to update " (c nX) " and " (c nY) " to the new locations of our pointer, so we'll add the following to " (c let) ":"
+    (line @X (- @Y 10) (+ @X 10) (- @Y 10))))")
+         "The monster we're going to create will start out as an ellipse with eyes."
+         " The " (c draw) " function is responsible for changing the display, and is repeatedly called according to the frame rate of our sketch."]
+    [:li "Add the following variables to " (c let) " so that we can keep track of the updated position of the monster:"
          (code "nX (ref nil)
 nY (ref nil)")
-         " The " (c mouseMoved) " function is automatically called every time the mouse is moved:"
+         "Now add the " (c mouseMoved) " function; it is automatically called every time the mouse is moved:"
          (code "(mouseMoved [mouse-event]
   (dosync
     (ref-set nX (mouse-x mouse-event))
     (ref-set nY (mouse-y mouse-event))))")
-         "The " (c mouseMoved) " function won't be sufficient, since it only indicates the new position of the mouse."
-         " We also need to change the X and Y position of the monster to move towards the mouse, which we can add before our " (c doto) " statement in " (c draw) ":"
+         "Change the X and Y position of the monster to move towards the mouse, which can be added before the " (c doto) " statement in " (c draw) ":"
          (code "(dosync
   (ref-set X (+ @X (/ (- @nX @X) delay)))
   (ref-set Y (+ @Y (/ (- @nY @Y) delay))))")
@@ -104,11 +102,10 @@ nY (ref nil)")
                   (ref-set nX (mouse-x mouse-event))
                   (ref-set nY (mouse-y mouse-event)))))]
   (view sktch :size [400 400]))")]
-    [:li "Now, we would like to make the monster face the direction it's heading."
-         " Let's add a value in our " (c let) " to determine which direction our monster is heading:"
+    [:li "Add a value in " (c let) " to determine which direction our monster is heading:"
          (code lookingLeft (ref -1))
          "This value will be changed to 1 when the monster is facing right, and -1 when facing left."
-         " We can check what direction the monster should be facing at the top of our " (dosync) " statement in the " (c mouseMoved) " function:"
+         " Check what direction the monster should be facing at the top of our " (dosync) " statement in the " (c mouseMoved) " function:"
          (code "(if (> (- @X (mouse-x mouse-event)) 0)
   (ref-set lookingLeft 1)
   (ref-set lookingLeft -1))")
@@ -157,12 +154,11 @@ nY (ref nil)")
                   (ref-set nX (mouse-x mouse-event))
                   (ref-set nY (mouse-y mouse-event)))))]
   (view sktch :size [400 400]))")]
-    [:li "Finally, let's add a second set of mouse interactions, so that dragging a clicked mouse will gradually make our monster become more transparent."
-         " We'll need a value " (c transparent) " that will measure how transparent the monster should be, with the fully-opaque value (the default) being 255:"
+    [:li "Add a value called " (c transparent) " that will measure how transparent the monster should be, with the full-opaque value (the default) being 255:"
          (code "transparent (ref 255)")
-         "Next, we need to modify the first " (c fill) " statement in " (c draw) " to accept a transparency value as well:"
+         "Next, modify the first " (c fill) " statement in " (c draw) " to accept a transparency value as well:"
          (code (fill 255 255 255 @transparent))
-         "To change the transparency of the monster when the mouse is dragged, add the following to " (c sktch) ":"
+         "Add the following to " (c sktch) " to change the transparency of the monster when the mouse is clicked and dragged:"
          (code "(mouseDragged [mouse-event]
   (dosync
     (ref-set transparent (- @transparent 0.5))))")
@@ -228,8 +224,8 @@ nY (ref nil)")
          " We'll be using materials from the " [:a {:href "http://benfry.com/"} "website of Ben Fry"] " (one of the creators of Processing) to add data to a map of the U.S."
          " Our data will come from the " [:a {:href "http://www.census.gov/"} "U.S. Census Bureau"] " and their " [:a {:href "http://www.census.gov/popest/datasets.html"} "population datasets"] ", the same data from the charts labrepl."
          " With it, we're going to create an infographic presenting the population of each U.S. state visually."]
-    [:li "This exercise will require the " (c core) ", " (c processing) ", and " (c io) " libraries."
-         " Initially, we just want to set up the map graphic, as taken from Ben Fry's website:"
+    [:li "Load the " (c core) ", " (c processing) ", and " (c io) " libraries."
+         " Then load the following map graphic, as taken from Ben Fry's website:"
          (code "(use '[incanter core processing io])
 
 (let [map-image (ref nil)
@@ -248,21 +244,19 @@ nY (ref nil)")
                   (image @map-image 0 0)
                   no-loop)))]
     (view sktch :title \"US Map with Population Data\" :size [640 430]))")]
-    [:li "Next, we want to import the data we'll be using and decide on a specific column to display on the map."
-         " For now, we'll use the " (c :POPESTIMATE2009) " data."
-         " We'll add these two new values in our " (c let) " statement:"
+    [:li "Next, import the data we'll be using and decide on a specific column to display on the map."
+         " For now, we'll use the " (c :POPESTIMATE2009) " data:"
          (code "data-dump (sel (read-dataset \"http://bit.ly/cqSGMz\"
 					         :delim \\,
 					         :header true) :except-rows [0 1 2 3 4 13 56])
 raw-data (sel data-dump :cols :POPESTIMATE2009)")
          "The " (c :except-rows) " excludes the values for each region of the U.S., DC, Puerto Rico, and the U.S. as a whole."]
-    [:li "Now that we have our data, we'll need to process it in order to display it."
-         " First, we'll find the min and max value in our dataset and add them to our " (c let) ":"
+    [:li "Find the min and max value in our dataset and add them to our " (c let) ":"
          (code "max-val (reduce max raw-data)
 min-val (reduce min raw-data)")
-         "We can then calculate a value for the " (c let) " statement determining where every value in our dataset falls as a percentage in-between these two values:"
+         "Now normalize all of the data values to fall between the max and min in the " (c let) " statement:"
          (code "percents (map #(norm % min-val max-val) raw-data)")]
-    [:li "The percentages calculated in the previous step can now be associated with states and their locations on the map."
+    [:li "Associate the percentages calculated in the previous step with states and their locations on the map."
          " Ben Fry has helpfully put together a dataset that indicates these values, which we can add to our " (c let) ":"
          (code "locations (sel (to-matrix (read-dataset
 	                          \"http://benfry.com/writing/map/locations.tsv\"
@@ -271,7 +265,7 @@ min-val (reduce min raw-data)")
          (code "data (bind-columns locations
                    (map #(remap % min-val max-val 10 50) raw-data)
                    percents)")]
-    [:li "Finally, we can draw our data by first defining a function in " (c let) ":"
+    [:li "Finally, draw the data by first defining a function in " (c let) ":"
          (code "draw-data (fn [sketch data]
             (doseq [[x y value percent] data]
               (fill sketch (lerp-color (color 0xFF0000)

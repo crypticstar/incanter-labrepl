@@ -12,15 +12,14 @@
   [[:h3 "Chi-Square Test"]
    [:ol
     [:li "The " [:a {:href "http://en.wikipedia.org/wiki/Chi-square_test"} "chi-square test"] " will be used here for testing data independence."
-         " In particular, we'll be using the " (c :hair-eye-color) " dataset from the " (c datasets) " library and testing for a correlation between hair color and eye color."
-         " First, we need to load in the associated namespaces:"
-         (code (use '[incanter core stats charts datasets]))
-         "Then load in the correct dataset and group it by gender:"
-         (code (def by-gender ($group-by 2 (get-dataset :hair-eye-color))))
-         "Then partition out the male data from the female data:"
+         " In particular, we'll be using the " (c :hair-eye-color) " dataset from the " (c datasets) " library and testing for a correlation between hair color and eye color."]
+    [:li "First, load in the associated namespaces and dataset, grouping by gender:"
+         (code (use '[incanter core stats charts datasets])
+         (def by-gender ($group-by 2 (get-dataset :hair-eye-color))))]
+    [:li "Now partition out the male data from the female data:"
          (code (def male-data (by-gender {:gender "male"}))
 (def female-data (by-gender {:gender "female"})))]
-    [:li "We can now extract the hair color, eye color, and count for both males and females:"
+    [:li "Extract the hair color, eye color, and count for both males and females:"
          (code "(def m-count (sel male-data :cols :count))
 (def m-eye (sel male-data :cols :eye))
 (def m-hair (sel male-data :cols :hair))
@@ -42,7 +41,7 @@
                  :title \"Female Hair and Eye Color\"
                  :x-label \"Hair Color\"
                  :y-label \"Number of females\"))")]
-    [:li "Since " (c chisq-test) " takes two contingency tables, we need to turn our vectors into matrices:"
+    [:li "Since " (c chisq-test) " takes a table value (which should be a matrix), we need to turn our datasets into matrices:"
          (code (def m-table (matrix m-count 4))
 (def f-table (matrix f-count 4)))]
     [:li (c chisq-test) " can now be run on both matrices:"
@@ -63,23 +62,23 @@
   []
   [[:h3 "Conditional Probability"]
    [:ol
-    [:li "One of the most debated problems in probability is the " [:a {:href "http://en.wikipedia.org/wiki/Monty_Hall_problem"} "Monty Hall problem"] "."
-         " Using a " [:a {:href "http://en.wikipedia.org/wiki/Monte_carlo_simulation"} "Monte Carlo simulation"] ", we can use Incanter samples to simulate how the problem would play out over many iterations."
-         " Load the required namespaces:"
-         (code (use '(incanter core stats charts)))]
-    [:li "Next, we need to create the simulation."
-         " Note that we sample from [1, 2, 3] to represent the 3 doors, and n represents the number of trials to run."
+    [:li "One of the most infamous problems in probability is the " [:a {:href "http://en.wikipedia.org/wiki/Monty_Hall_problem"} "Monty Hall problem"] "."
+         " Using a " [:a {:href "http://en.wikipedia.org/wiki/Mone_carlo_simulation"} "Monte Carlo simulation"] ", we can use Incanter samples to simulate how the problem would play out over many iterations."]
+    [:li "Load the required namespaces:"
+         (code (use '[incanter core stats charts]))]
+    [:li "Next, we need to create the simulation:"
          (code (def n 10000)
 (def initial-guesses (sample [1 2 3] :size n))
 (def prize-doors (sample [1 2 3] :size n))
-(def switches (sample [true false] :size n)))]
-    [:li "We'll use a function to determine if we win when we switch:"
+(def switches (sample [true false] :size n)))
+         "Note that we sample from [1, 2, 3] to represent the 3 doors, and n represents the number of trials to run."]
+    [:li "Use a function to determine if we win when we switch:"
          (code "(defn switch-win? [initial-guess switch prize-door]
   (if (and switch (not= initial-guess prize-door)) 1 0))")
          "We can do the same for determining if we win when we stay:"
          (code "(defn stay-win? [initial-guess switch prize-door]
   (if (and (not switch) (= initial-guess prize-door)) 1 0))")]
-    [:li "Using these functions, we can now calculate the joint probability if we switch:"
+    [:li "Now calculate the joint probability for if we switch:"
          (code (def prob-switch-win (/ (sum (map switch-win?
                               initial-guesses
                               switches
@@ -91,7 +90,7 @@
                             switches
                             prize-doors))
                       n)))]
-    [:li "To calculate the conditional probabilities, we need to calculate the number of switches and then divide the probability resulting from the previous step with this number:"
+    [:li "Finally, calculate the conditional probabilities:"
          (code "(def prob-switch (/ (sum (indicator true? switches)) n))
 (def prob-win-given-switch (/ prob-switch-win prob-switch))
 
